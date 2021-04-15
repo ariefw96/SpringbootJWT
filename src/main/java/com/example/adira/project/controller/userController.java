@@ -4,8 +4,9 @@ package com.example.adira.project.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import com.example.adira.project.repository.userRepository;
+
 import com.example.adira.project.entity.userEntity;
+import com.example.adira.project.entity.jwtEntity;
 import com.example.adira.project.response.*;
 import com.example.adira.project.service.userService;
 
@@ -19,11 +20,12 @@ public class userController {
     @Autowired
     responseGenerator response;
 
-    @Autowired
-    userRepository user;
 
     @Autowired
     userService userService;
+
+    @Autowired
+    jwtEntity jwt;
 
     @GetMapping(value = "")
     public responseData <String> Home(){
@@ -34,9 +36,13 @@ public class userController {
             value = "addNewUser",
         consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE}
     )
-    public responseData <String> addNewUser(userEntity param){
-        userService.addNewUser(param);
-       return response.successResponse(param, "Sukses menambahkan user baru.");
+    public responseData <String> addNewUser(@RequestHeader("token") String token,userEntity param){
+        if(jwt.returnJwt(token)){
+            return response.successResponse(param, "Gagal menambahkan data!");
+        }else {
+            userService.addNewUser(param);
+            return response.successResponse(param, "Sukses menambahkan user baru.");
+        }
     }
 
     @GetMapping(
