@@ -22,7 +22,7 @@ import java.util.Base64;
 import java.util.Date;
 
 @RestController
-@RequestMapping(value = "/auth")
+@RequestMapping(value = "api/v1/auth")
 
 public class LoginController {
 

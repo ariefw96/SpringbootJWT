@@ -18,7 +18,7 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping(value = "api/v1/user")
 
 public class userController {
 
