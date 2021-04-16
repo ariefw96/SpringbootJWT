@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import com.example.adira.project.entity.userEntity;
 import com.example.adira.project.response.*;
 import com.example.adira.project.service.userService;
+import com.example.adira.project.exception.*;
+
+import org.springframework.core.env.Environment;
 
 import java.util.Base64;
 import java.util.List;
@@ -19,7 +22,10 @@ import java.util.List;
 
 public class userController {
 
-    private String secretKey = Base64.getEncoder().encodeToString("WANGIWANGI".getBytes());
+    @Autowired
+    private Environment env;
+
+//    protected String secretKey = Base64.getEncoder().encodeToString(env.getProperty("secret.key").getBytes());
 
     @Autowired
     responseGenerator response;
@@ -29,6 +35,7 @@ public class userController {
     userService userService;
 
     public boolean checkJwt (String token){
+        String secretKey = Base64.getEncoder().encodeToString(env.getProperty("secret.key").getBytes());
         try{
             Jwts.parser().setSigningKey(secretKey).parse(token);
             return true;
@@ -48,14 +55,14 @@ public class userController {
     )
     public responseData <String> addNewUser(@RequestHeader("token") String token,userEntity param){
         if (token.length() == 0){
-            return response.failedResponse("token empty!", "Gagal!", 401);
+            throw new unauthorizedException("Unauthorized Access!",401);
         }else {
             token = token.split(" ")[1];
             if (checkJwt(token)) {
                 userService.addNewUser(param);
                 return response.successResponse(param, "Sukses menambahkan user baru.");
             } else {
-                return response.failedResponse("JWT invalid", "Gagal!", 401);
+                throw new unauthorizedException("Unauthorized Access!",401);
             }
         }
     }
@@ -63,34 +70,16 @@ public class userController {
     @GetMapping(
             value = "getAllUser"
     )
-    public responseData <List<userEntity>> getAllUser(@RequestHeader("token") String token){
-        if (token.length() == 0){
-            return response.failedResponse("token empty!", "Gagal!", 401);
-        }else {
-            token = token.split(" ")[1];
-            if (checkJwt(token)) {
-                List data = userService.getAllUser();
-                return response.successResponse(data,"Sukses mendapatkan semua data");
-            } else {
-                return response.failedResponse("JWT invalid", "Gagal!", 401);
-            }
-        }
+    public responseData <List<userEntity>> getAllUser(){
+        List data = userService.getAllUser();
+        return response.successResponse(data,"Sukses mendapatkan semua data");
     }
 
     @GetMapping(value = "getUser/{id}")
-    public responseData <userEntity> getUserById(@RequestHeader("token") String token, @PathVariable("id") Integer id){
-        if (token.length() == 0){
-            return response.failedResponse("token empty!", "Gagal!", 401);
-        }else {
-            token = token.split(" ")[1];
-            if (checkJwt(token)) {
-                userEntity data = userService.getUser(id);
-                return response.successResponse(data, "Sukses mendapatkan data pada ID "+id);
-            } else {
-                return response.failedResponse("JWT invalid", "Gagal!", 401);
-            }
-        }
-
+    public responseData <userEntity> getUserById(@PathVariable("id") Integer id){
+        userEntity data = userService.getUser(id);
+        System.out.println(data);
+        return response.successResponse(data, "Sukses mendapatkan data pada ID "+id);
     }
 
     @PatchMapping(
@@ -99,14 +88,14 @@ public class userController {
             )
     public responseData <String> updateUser(@RequestHeader("token") String token, @PathVariable("id") Integer id, userEntity param){
         if (token.length() == 0){
-            return response.failedResponse("token empty!", "Gagal!", 401);
+            throw new unauthorizedException("Unauthorized Access!",401);
         }else {
             token = token.split(" ")[1];
             if (checkJwt(token)) {
                 userService.updateUser(param,id);
                 return response.successResponse(param,"Sukses mengubah data pada ID "+id);
             } else {
-                return response.failedResponse("JWT invalid", "Gagal!", 401);
+                throw new unauthorizedException("Unauthorized Access!",401);
             }
         }
     }
@@ -114,14 +103,14 @@ public class userController {
     @DeleteMapping(value = "deleteUser/{id}")
     public responseData <String> deleteUser(@RequestHeader("token") String token, @PathVariable("id") Integer id){
         if (token.length() == 0){
-            return response.failedResponse("token empty!", "Gagal!", 401);
+            throw new unauthorizedException("Unauthorized Access!",401);
         }else {
             token = token.split(" ")[1];
             if (checkJwt(token)) {
                 userEntity data = userService.deleteUser(id);
                 return response.successResponse(data, "Sukses menghapus user pada ID "+id);
             } else {
-                return response.failedResponse("JWT invalid", "Gagal!", 401);
+                throw new unauthorizedException("Unauthorized Access!",401);
             }
         }
     }

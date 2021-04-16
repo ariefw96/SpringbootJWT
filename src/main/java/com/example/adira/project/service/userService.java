@@ -1,9 +1,11 @@
 package com.example.adira.project.service;
 
+import com.example.adira.project.exception.notfoundException;
 import com.example.adira.project.repository.userRepository;
 import com.example.adira.project.entity.userEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.core.env.Environment;
 
 import java.util.List;
 
@@ -14,6 +16,9 @@ public class userService {
     @Autowired
     userRepository user;
 
+    @Autowired
+    private Environment env;
+
     public void addNewUser(userEntity param){
         user.save(param);
     }
@@ -23,7 +28,11 @@ public class userService {
     }
 
     public userEntity getUser(Integer id){
-        return user.findById(id).get();
+        userEntity data = user.findById(id).orElse(null);
+        if(data == null){
+            throw new notfoundException(404,"Not found");
+        }
+        return data;
     }
 
     public void updateUser(userEntity param, Integer id){
