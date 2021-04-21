@@ -44,7 +44,8 @@ public class LoginController {
         if(exist != null){
             Date now = new Date();
             Date valid = new Date(now.getTime() + 3600000); //valid for 1 hour
-            String Jwtdata = Jwts.builder().claim("id",exist.id).claim("username",exist.username).claim("isLogin", true).setIssuedAt(now).setExpiration(valid).signWith(SignatureAlgorithm.HS256, secretKey).compact();
+            String Jwtdata = Jwts.builder().setHeaderParam("typ","JWT")
+                    .claim("id",exist.id).claim("username",exist.username).claim("isLogin", true).setIssuedAt(now).setExpiration(valid).signWith(SignatureAlgorithm.HS256, secretKey).compact();
             return  response.successResponse(Jwtdata,"Sukses Login.");
         }else{
             throw new notfoundException(404, "404 Not Found");

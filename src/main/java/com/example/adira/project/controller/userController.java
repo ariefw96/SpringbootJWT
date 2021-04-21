@@ -4,8 +4,10 @@ package com.example.adira.project.controller;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import com.example.adira.project.entity.userEntity;
 import com.example.adira.project.response.*;
@@ -70,9 +72,24 @@ public class userController {
     @GetMapping(
             value = "getAllUser"
     )
-    public responseData <List<userEntity>> getAllUser(){
-        List data = userService.getAllUser();
-        return response.successResponse(data,"Sukses mendapatkan semua data");
+    public ResponseEntity <responseData<List<userEntity>>> getAllUser(){
+        try{
+            List data = userService.getAllUser();
+            if(data.size() < 1){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(response.successResponse(data,"Data tidak ditemukan"));
+            }else {
+//        return new ResponseEntity<List<userEntity>>(data, HttpStatus.OK);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(response.successResponse(data, "Sukses menampilkan data"));
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response.successResponse(e,"INTERNAL SERVER ERROR"));
+        }
     }
 
     @GetMapping(value = "getUser/{id}")
@@ -114,5 +131,7 @@ public class userController {
             }
         }
     }
+
+
 
 }
