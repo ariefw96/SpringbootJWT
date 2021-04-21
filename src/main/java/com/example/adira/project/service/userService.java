@@ -29,15 +29,12 @@ public class userService {
 
     public userEntity getUser(Integer id){
         userEntity data = user.findById(id).orElse(null);
-        if(data == null){
-            throw new notfoundException(404,"Not found");
-        }
         return data;
     }
 
     public void updateUser(userEntity param, Integer id){
         userEntity data = user.findById(id).get();
-        param.id = id;
+        param.setId(id);
         if(param.email == null){
             param.setEmail(data.email);
         }
